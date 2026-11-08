@@ -1,6 +1,6 @@
 {
   "blender": "4.3.2",
-  "objects": 2678,
+  "objects": 2598,
   "active_camera": "CamOrbit",
   "output": "//frames/f_",
   "samples": 32,
@@ -16,12 +16,13 @@
     "Lighting"
   ],
   "provenance": {
-    "castle_source_sha256": "b6ac08e5841bd877458230ca7dea1c9ace5900cb9a6728f83955099a5f33bc78",
+    "castle_source_sha256": "8844c90241ac7f0fd6c71eccc7fcfd95dd05e0861cc534d2d480c7c4a0588ee7",
     "castle_source_revision": "audit-fixes-20261108-sculpture",
     "castle_gargoyle_revision": 2,
     "castle_roof_height_scale": 0.65,
+    "castle_roof_dormers": false,
     "castle_animation_version": "audit-v2",
-    "castle_build_fingerprint": "ac0db095ca828a34ea814d602ffc7488c72c3e5dd5fff0c5c2855b3ba74dc9cf",
+    "castle_build_fingerprint": "3d863c5a24b12deaf3ce7f65aa081400ddfd312511ee9e7cbdf195ba186f3c18",
     "castle_loop_endpoint": 721
   },
   "gargoyles": {
@@ -56,123 +57,123 @@
   },
   "finials": [
     {
-      "ball": "Sphere.048",
-      "cone": "Cone.067",
+      "ball": "Sphere.028",
+      "cone": "Cone.047",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.049",
-      "cone": "Cone.068",
+      "ball": "Sphere.029",
+      "cone": "Cone.048",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.030",
+      "cone": "Cone.049",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.031",
+      "cone": "Cone.050",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.039",
+      "cone": "Cone.078",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.040",
+      "cone": "Cone.079",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.041",
+      "cone": "Cone.080",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.042",
+      "cone": "Cone.081",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.050",
-      "cone": "Cone.069",
+      "cone": "Cone.109",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.051",
-      "cone": "Cone.070",
+      "cone": "Cone.110",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.059",
-      "cone": "Cone.098",
+      "ball": "Sphere.052",
+      "cone": "Cone.111",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.060",
-      "cone": "Cone.099",
+      "ball": "Sphere.053",
+      "cone": "Cone.112",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.061",
-      "cone": "Cone.100",
+      "cone": "Cone.140",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.062",
-      "cone": "Cone.101",
+      "cone": "Cone.141",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.070",
-      "cone": "Cone.129",
+      "ball": "Sphere.063",
+      "cone": "Cone.142",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.071",
-      "cone": "Cone.130",
+      "ball": "Sphere.064",
+      "cone": "Cone.143",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.072",
-      "cone": "Cone.131",
+      "cone": "Cone.171",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.073",
-      "cone": "Cone.132",
+      "cone": "Cone.172",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.081",
-      "cone": "Cone.160",
+      "ball": "Sphere.074",
+      "cone": "Cone.173",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.082",
-      "cone": "Cone.161",
+      "ball": "Sphere.075",
+      "cone": "Cone.174",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.083",
-      "cone": "Cone.162",
+      "cone": "Cone.202",
       "gap": -0.03999900817871094
     },
     {
       "ball": "Sphere.084",
-      "cone": "Cone.163",
+      "cone": "Cone.203",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.092",
-      "cone": "Cone.191",
+      "ball": "Sphere.085",
+      "cone": "Cone.204",
       "gap": -0.03999900817871094
     },
     {
-      "ball": "Sphere.093",
-      "cone": "Cone.192",
-      "gap": -0.03999900817871094
-    },
-    {
-      "ball": "Sphere.094",
-      "cone": "Cone.193",
-      "gap": -0.03999900817871094
-    },
-    {
-      "ball": "Sphere.095",
-      "cone": "Cone.194",
-      "gap": -0.03999900817871094
-    },
-    {
-      "ball": "Sphere.103",
-      "cone": "Cone.222",
-      "gap": -0.03999900817871094
-    },
-    {
-      "ball": "Sphere.104",
-      "cone": "Cone.223",
-      "gap": -0.03999900817871094
-    },
-    {
-      "ball": "Sphere.105",
-      "cone": "Cone.224",
-      "gap": -0.03999900817871094
-    },
-    {
-      "ball": "Sphere.106",
-      "cone": "Cone.225",
+      "ball": "Sphere.086",
+      "cone": "Cone.205",
       "gap": -0.03999900817871094
     }
   ],
