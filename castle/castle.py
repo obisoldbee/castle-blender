@@ -440,6 +440,7 @@ def gate(x,y,rot,host,w=2.6,h=4.6,depth=1.6):
         lbox(root,s*(w/2+.9),-.45,2.3,.1,.1,.5,IRON)
     bpy.ops.object.light_add(type='POINT',location=(0,dp-.5,1.5));l=bpy.context.object;l.data.energy=(0 if DAY else 40);l.data.color=(1,.5,.2);l.parent=root
 
+ROOF_HEIGHT_SCALE=.65  # user-approved shorter cone roofs; eaves and tower bodies stay fixed
 TOWERS=[]
 def tower(x,y,r,h,spire=2.4,wins=True,crown=True):
     T=cyl(x,y,0,r,h,STONE,40)
@@ -467,10 +468,14 @@ def tower(x,y,r,h,spire=2.4,wins=True,crown=True):
         CB=RT+DH;CR=DR+.25
     else:
         CB=RT;CR=r*1.24   # cone eaves overhang the machicolation ring
-    cone(x,y,CB,CR,2*r*spire)
-    TOWERS.append((x,y,r,h,spire,CB,CR))
-    # finial
-    cyl(x,y,CB+2*r*spire-.1,.04,1.0,DSTONE,8)
+    roof_h=2*r*spire*ROOF_HEIGHT_SCALE
+    roof=cone(x,y,CB,CR,roof_h)
+    roof["castle_asset"]="tower_roof";roof["roof_base_z"]=CB;roof["roof_height"]=roof_h;roof["roof_radius"]=CR
+    roof["roof_original_height"]=2*r*spire
+    TOWERS.append((x,y,r,h,spire,CB,CR,roof.name))
+    # Finial follows the new apex, retaining its own authored dimensions.
+    fin=cyl(x,y,CB+roof_h-.1,.04,1.0,DSTONE,8)
+    fin["castle_asset"]="roof_finial";fin["roof_owner"]=roof.name
     if wins:
         out=math.atan2(y-2,x-1) if (x*x+y*y)>4 else -math.pi/2
         # lower (defensive) level: a single arrow slit; upper (residential) level: one small window
@@ -611,26 +616,31 @@ def gargoyle(x,y,z,a,s=1.0):
     for part in set(bpy.data.objects)-before:
         if not part.get("castle_asset"): part["castle_asset"]="gargoyle_sculpture"
 
-def dormer(cx,cy,zb,a,w=.55):
+def dormer(cx,cy,zb,a,w=.55,owner=""):
+    before=set(bpy.data.objects)
     ca,sa=math.cos(a),math.sin(a)
     obox(cx,cy,zb+w*.55,w*.9,w,w*1.1,STONE,0,0,a+math.pi/2)
     obox(cx+ca*(w*.5+.01),cy+sa*(w*.5+.01),zb+w*.5,w*.5,.04,w*.7,GLASS,0,0,a+math.pi/2)
-    bpy.ops.mesh.primitive_cone_add(vertices=4,radius1=w*.78,depth=w*.9,location=(cx,cy,zb+w*1.1+w*.45),rotation=(0,0,a+math.pi/4));link(bpy.context.object,ROOF)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=.05,location=(cx,cy,zb+w*2.05),segments=8,ring_count=6);link(bpy.context.object,IRON)
+    bpy.ops.mesh.primitive_cone_add(vertices=4,radius1=w*.78,depth=w*.9*ROOF_HEIGHT_SCALE,location=(cx,cy,zb+w*1.1+w*.45*ROOF_HEIGHT_SCALE),rotation=(0,0,a+math.pi/4));link(bpy.context.object,ROOF)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=.05,location=(cx,cy,zb+w*1.1+w*.9*ROOF_HEIGHT_SCALE+w*.05),segments=8,ring_count=6);link(bpy.context.object,IRON)
+
+    for part in set(bpy.data.objects)-before:
+        part["castle_asset"]="roof_dormer";part["roof_owner"]=owner;part["dormer_base_z"]=zb
 
 # tower extras: string courses, battered plinths, dormers, gargoyles, finial balls
-for (x,y,r,h,sp,CB,CR) in TOWERS:
+for (x,y,r,h,sp,CB,CR,roof_name) in TOWERS:
     for f in (.33,.63):
         cyl(x,y,h*f,r*1.035,.22,DSTONE,40)
     bpy.ops.mesh.primitive_cone_add(vertices=40,radius1=r*1.32,radius2=r*1.01,depth=3.0,location=(x,y,0.0));link(bpy.context.object,STONE)
     cyl(x,y,1.45,r*1.06,.25,DSTONE,40)
-    H=2*r*sp;top=CB
+    H=2*r*sp*ROOF_HEIGHT_SCALE;top=CB
     bpy.ops.mesh.primitive_uv_sphere_add(radius=.12,location=(x,y,top+H+.15),segments=12,ring_count=8);link(bpy.context.object,IRON)
+    bpy.context.object["castle_asset"]="roof_finial_ball";bpy.context.object["roof_owner"]=roof_name
     if r>=1.5:
         out=math.atan2(y-2,x-1)
         for j in (-.9,.9):
             a=out+j;t=.22;rr=CR*(1-t)
-            dormer(x+math.cos(a)*rr*.92,y+math.sin(a)*rr*.92,top+t*H-.25,a,w=.5*r/2)
+            dormer(x+math.cos(a)*rr*.92,y+math.sin(a)*rr*.92,top+t*H-.25,a,w=.5*r/2,owner=roof_name)
         if r>=2.5:   # only the great tower carries gargoyles, two on the sea-facing side
             for a in (-math.pi/2-.55,-math.pi/2+.55):
                 gargoyle(x+math.cos(a)*r*1.0,y+math.sin(a)*r*1.0,h*.9,a,s=1.9)
@@ -1067,6 +1077,7 @@ sc.render.filepath="//output/"+PFX+sc.camera.name+".png"
 sc["castle_source_sha256"]=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 sc["castle_source_revision"]="audit-fixes-20261108-sculpture"
 sc["castle_gargoyle_revision"]=2
+sc["castle_roof_height_scale"]=ROOF_HEIGHT_SCALE
 bpy.ops.wm.save_as_mainfile(filepath=OUT+"castle.blend",compress=True)
 if OPTIONS.mode=='render':
     try:
