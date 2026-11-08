@@ -23,3 +23,6 @@
 
 ## Review follow-through
 See [REVIEW_ACTIONS.md](REVIEW_ACTIONS.md). A separate technical-cleanup successor is in `remediation/`; it is **not** a visually accepted revision.
+
+## Actual reconstruction study
+`reconstruction-v01/` contains rebuilt geometry, four actual verification renders, source modules and scoped measurements. Self-review **not passed**: see its README for remaining failures. It is not a final replacement.

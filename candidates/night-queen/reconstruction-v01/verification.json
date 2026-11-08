@@ -1,0 +1,44 @@
+{
+  "objects": 73,
+  "old_eyes_remaining": [],
+  "cameras": [
+    "Camera",
+    "Feet oblique",
+    "Full front",
+    "Full oblique",
+    "Head front"
+  ],
+  "feet": {
+    "Rebuilt bird foot.L": [
+      [
+        -0.2580283284187317,
+        -0.021899648010730743
+      ],
+      [
+        -0.31228524446487427,
+        0.07485827803611755
+      ],
+      [
+        0.3102000057697296,
+        0.5465500354766846
+      ]
+    ],
+    "Rebuilt bird foot.R": [
+      [
+        0.021899648010730743,
+        0.2580283284187317
+      ],
+      [
+        -0.31228524446487427,
+        0.07485827803611755
+      ],
+      [
+        0.3102000057697296,
+        0.5465500354766846
+      ]
+    ]
+  },
+  "embedded_scripts": 0,
+  "linked_libraries": 0,
+  "candidate_status": "not accepted; head/neck seams, hand posture, horn cap and joint shaping remain"
+}

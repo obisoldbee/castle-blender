@@ -1,0 +1,71 @@
+{
+  "model_sha256": "68bd1f555dfe8fbb76a78837a76fd58c99113b6769cb35c1aad3057b672272e8",
+  "views": [
+    {
+      "view": "Full front",
+      "file": "full_front.png",
+      "camera_location": [
+        0,
+        -7,
+        2
+      ],
+      "target": [
+        0,
+        0,
+        1.75
+      ],
+      "ortho_scale": 3.55,
+      "samples": 48
+    },
+    {
+      "view": "Head front",
+      "file": "head_front.png",
+      "camera_location": [
+        0,
+        -5,
+        3
+      ],
+      "target": [
+        0,
+        0,
+        2.96
+      ],
+      "ortho_scale": 0.8,
+      "samples": 48
+    },
+    {
+      "view": "Full oblique",
+      "file": "full_oblique.png",
+      "camera_location": [
+        3,
+        -7,
+        2.8
+      ],
+      "target": [
+        0,
+        0,
+        1.75
+      ],
+      "ortho_scale": 3.55,
+      "samples": 48
+    },
+    {
+      "view": "Feet oblique",
+      "file": "feet_oblique.png",
+      "camera_location": [
+        0.65,
+        -1.6,
+        0.9
+      ],
+      "target": [
+        0,
+        -0.07,
+        0.43
+      ],
+      "ortho_scale": 0.72,
+      "samples": 48
+    }
+  ],
+  "status": "unapproved reconstruction study, not production",
+  "formal_scene_changed": false
+}
