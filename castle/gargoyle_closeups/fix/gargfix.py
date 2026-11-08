@@ -35,8 +35,24 @@ def corbel(m):
     o.scale=(.95*s/2,.38*s/2,.32*s/2);o.data.materials.append(bpy.data.materials['dstone']);o.name='garg_corbel'
     return o
 def apply():
-    for m in mounts():
-        ps=parts(m);sh=m['base']-m['old']
-        for o in ps: o.matrix_world=Matrix.Translation(sh)@o.matrix_world
-        corbel(m);print('GARGFIX',m['kind'],round(m['a'],2),len(ps),'parts moved',tuple(round(v,2) for v in sh))
+    """Migrate only the recognized unpatched legacy scene, once, in memory."""
+    scene=bpy.context.scene
+    if scene.get('castle_gargoyle_revision',0)>=2:
+        return False
+    if any(o.name.startswith('garg_corbel') for o in scene.objects):
+        raise RuntimeError('Unversioned corbels already exist; refusing ambiguous double patch')
+    if 'dstone' not in bpy.data.materials:
+        raise RuntimeError('Missing dstone material; load the supported castle scene first')
+    plans=[(m,parts(m)) for m in mounts()]
+    if any(len(ps)!=9 for m,ps in plans):
+        raise RuntimeError('Unrecognized gargoyle layout: expected 9 parts per mount; no changes made')
+    objects=[o for m,ps in plans for o in ps]
+    if len(set(objects))!=len(objects):
+        raise RuntimeError('Overlapping gargoyle selections; no changes made')
+    for m,ps in plans:
+        shift=m['base']-m['old']
+        for o in ps: o.matrix_world=Matrix.Translation(shift)@o.matrix_world
+        corbel(m)['castle_asset']='gargoyle_corbel'
+    scene['castle_gargoyle_revision']=2
+    return True
 if __name__=="__main__": apply()

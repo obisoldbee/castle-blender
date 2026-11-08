@@ -1,11 +1,37 @@
 import bpy, bmesh, math, random, sys
 from mathutils import Vector
+import argparse, hashlib
+from pathlib import Path
+
+def parse_options(argv):
+    parser=argparse.ArgumentParser(description="Build the castle; rendering requires --mode render.")
+    parser.add_argument('samples', nargs='?', type=int, default=64)
+    parser.add_argument('cameras', nargs='*', choices=None)
+    parser.add_argument('--night', action='store_true')
+    parser.add_argument('--mode', choices=('build','render'), default='build')
+    parser.add_argument('--output-dir', type=Path, required=True)
+    parser.add_argument('--force', action='store_true')
+    parser.add_argument('--no-denoise', action='store_true')
+    opt=parser.parse_args(argv)
+    if opt.samples < 1: parser.error('samples must be positive')
+    if any(n not in ('Cam_Wide','Cam_Low','Cam_Moon','Cam_Gate') for n in opt.cameras):
+        parser.error('unknown camera name')
+    opt.output_dir=opt.output_dir.expanduser().resolve()
+    targets=[opt.output_dir/'castle.blend']
+    if opt.mode=='render':
+        targets += [opt.output_dir/(("render_" if opt.night else "day_")+n+'.png')
+                    for n in (opt.cameras or ('Cam_Wide','Cam_Low','Cam_Moon','Cam_Gate'))]
+    if not opt.force and any(p.exists() for p in targets):
+        parser.error('output already exists; use a new directory or explicit --force')
+    return opt
+
+OPTIONS=parse_options(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+# All argument and overwrite checks precede destructive scene reset.
+OPTIONS.output_dir.mkdir(parents=True, exist_ok=True)
+OUT=str(OPTIONS.output_dir) + '/'
 random.seed(7)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sc=bpy.context.scene
-from pathlib import Path
-OUT=str(Path(__file__).resolve().parent / "output") + "/"
-Path(OUT).mkdir(parents=True, exist_ok=True)
 
 def mat(name,col,rough=0.8,emit=None,es=0,noise=True,bump=0.4):
     m=bpy.data.materials.new(name);m.use_nodes=True;nt=m.node_tree;b=nt.nodes["Principled BSDF"]
@@ -24,11 +50,9 @@ def mat(name,col,rough=0.8,emit=None,es=0,noise=True,bump=0.4):
     if emit:
         b.inputs["Emission Color"].default_value=(*emit,1);b.inputs["Emission Strength"].default_value=es
     return m
-ARGS=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
-DAY=('--night' not in ARGS)
-ARGS=[a for a in ARGS if not a.startswith('--')]
-SAMPLES=int(ARGS[0]) if ARGS else 64
-ONLY=ARGS[1:]
+DAY=not OPTIONS.night
+SAMPLES=OPTIONS.samples
+ONLY=OPTIONS.cameras
 PFX="day_" if DAY else "render_"
 ZW=3.6  # plateau height (world)
 
@@ -536,10 +560,13 @@ def gargoyle(x,y,z,a,s=1.0):
     ca,sa=math.cos(a),math.sin(a)
     P=lambda d,h=0,lat=0:(x+ca*d*s-sa*lat*s,y+sa*d*s+ca*lat*s,z+h*s)
     # bonding corbel: tail block runs back into the masonry so the beast is carried by the wall
-    obox(*P(.1,-.12),.95*s,.38*s,.32*s,DSTONE,0,0,a)
+    corbel=obox(*P(.1,-.12),.95*s,.38*s,.32*s,DSTONE,0,0,a)
+    corbel.name="garg_corbel";corbel["castle_asset"]="gargoyle_corbel"
     bpy.ops.mesh.primitive_cone_add(vertices=10,radius1=.2*s,radius2=.12*s,depth=.8*s,location=P(.45,.05),rotation=(0,math.pi/2-.25,a));o=bpy.context.object;o.scale.x=1.25;link(o,STONE)
     bpy.ops.mesh.primitive_uv_sphere_add(radius=.15*s,location=P(.95,.22),segments=12,ring_count=8);o=bpy.context.object;o.scale=(1.35,1,1.05);o.rotation_euler=(0,0,a);link(o,STONE)
-    bpy.ops.mesh.primitive_cone_add(vertices=8,radius1=.075*s,radius2=.03*s,depth=.32*s,location=P(1.15,.17),rotation=(0,math.pi/2+.2,a));link(bpy.context.object,STONE)  # open-mouthed spout
+    bpy.ops.mesh.primitive_cone_add(vertices=8,radius1=.075*s,radius2=.03*s,depth=.32*s,end_fill_type='NOTHING',location=P(1.15,.17),rotation=(0,math.pi/2+.2,a));link(bpy.context.object,STONE)
+    mouth=bpy.context.object;mouth["no_global_bevel"]=True
+    mouth.modifiers.new("stone_lip",'SOLIDIFY').thickness=.012*s  # Open lip, not a simulated drainage system.
     for lat in (-1,1):
         bpy.ops.mesh.primitive_cone_add(vertices=6,radius1=.035*s,depth=.22*s,location=P(.9,.4,lat*.08),rotation=(0,-.5,a));link(bpy.context.object,STONE)  # horns
         me=bpy.data.meshes.new("wing");bm=bmesh.new()
@@ -604,7 +631,9 @@ def pinnacle(px,py,z0,sx=1.3,sy=1.1):
             qx,qy=px+ex*sx/2,py+ey*sy/2
             obox(qx,qy,z0+1.25,.24,.24,2.1,STONE)
             bpy.ops.mesh.primitive_cone_add(vertices=4,radius1=.17,depth=1.1,location=(qx,qy,z0+2.95),rotation=(0,0,math.pi/4));link(bpy.context.object,STONE)
+            bpy.context.object["no_global_bevel"]=True;bpy.context.object["castle_asset"]="pinnacle_tip"
             bpy.ops.mesh.primitive_uv_sphere_add(radius=.06,location=(qx,qy,z0+3.52),segments=8,ring_count=5);link(bpy.context.object,STONE)
+            bpy.context.object["castle_asset"]="pinnacle_ball"
     obox(px,py,z0+.9,.32,.32,1.6,STONE)   # central shaft seen through arches
     for (fx,fy,aa,ww) in ((0,-sy/2,0,sx-.3),(0,sy/2,0,sx-.3),(-sx/2,0,math.pi/2,sy-.3),(sx/2,0,math.pi/2,sy-.3)):
         arch_plate(px+fx,py+fy,z0+1.1,ww,1.05,aa)
@@ -618,7 +647,7 @@ def pinnacle(px,py,z0,sx=1.3,sy=1.1):
             bpy.ops.mesh.primitive_cone_add(vertices=3,radius1=.1,depth=.26,location=(px+math.cos(aq)*(r_*.72+.05),py+math.sin(aq)*(r_*.72+.05),zz),rotation=(math.pi/2-.6,0,aq+math.pi/2));link(bpy.context.object,STONE)
     obox(px,py,z0+7.15,.07,.07,.7,STONE);obox(px,py,z0+7.25,.38,.07,.07,STONE)   # finial cross
     bpy.ops.mesh.primitive_uv_sphere_add(radius=.1,location=(px,py,z0+6.85),segments=8,ring_count=6);link(bpy.context.object,STONE)
-def prism(name,prof,y0,y1,m,bev=.02):
+def profile_prism(name,prof,y0,y1,m,bev=.02):
     me=bpy.data.meshes.new(name);bm=bmesh.new();n_=len(prof)
     fv=[bm.verts.new((x_,y0,z_)) for x_,z_ in prof];bv=[bm.verts.new((x_,y1,z_)) for x_,z_ in prof]
     bm.faces.new(fv);bm.faces.new(list(reversed(bv)))
@@ -636,14 +665,14 @@ def flyer(s_,yy,xw,xp,zc,zw_top,zp_top,w=.95,ring=.65,nv=11):
     # spandrel/core (slightly narrower, darker joints show between voussoirs)
     arcO=[C(R+ring-.04,k/24*math.pi/2) for k in range(25)]
     prof=[(xp,zp_top),(xw,zw_top),(xe,zw_top),(xe,zc+R+ring-.04)]+list(reversed(arcO))
-    prism("flyer_spandrel",prof,yy-w/2+.06,yy+w/2-.06,STONE)
+    profile_prism("flyer_spandrel",prof,yy-w/2+.06,yy+w/2-.06,STONE)
     arcI=[C(R+.02,k/24*math.pi/2) for k in range(25)]
-    prism("flyer_core",[(xp,zc)]+arcO[::-1][::-1]+[(xw,zc+R+.02)]+arcI[::-1],yy-w/2+.08,yy+w/2-.08,DSTONE,0)
+    profile_prism("flyer_core",[(xp,zc)]+arcO[::-1][::-1]+[(xw,zc+R+.02)]+arcI[::-1],yy-w/2+.08,yy+w/2-.08,DSTONE,0)
     # voussoirs: radial joints
     for k in range(nv):
         t0=k/nv*math.pi/2+.012;t1=(k+1)/nv*math.pi/2-.012
         pts=[C(R,t0+(t1-t0)*q/3) for q in range(4)]+[C(R+ring,t1-(t1-t0)*q/3) for q in range(4)]
-        prism("voussoir",pts,yy-w/2,yy+w/2,STONE,.025)
+        profile_prism("voussoir",pts,yy-w/2,yy+w/2,STONE,.025)
     # coping: shallow V of two slabs + dark channel, slightly wider than the flyer
     Lf=math.hypot(xw-xp,zw_top-zp_top)+.3;ang=math.atan2(zw_top-zp_top,abs(xw-xp))
     mx,mz=(xp+xw)/2,(zp_top+zw_top)/2
@@ -702,7 +731,7 @@ for i in range(len(pts)):
 castle=[o for o in bpy.data.objects if o not in start]
 for o in castle:
     o.location.z+=Z;o.location.x+=1;o.location.y+=0
-    if o.type=='MESH' and "hasbool" not in o and o.parent is None and o not in CUTTERS: o.modifiers.new("b",'BEVEL').width=.04
+    if o.type=='MESH' and "hasbool" not in o and o.parent is None and o not in CUTTERS and not o.get("no_global_bevel"): o.modifiers.new("b",'BEVEL').width=.04
     if o.parent is not None: o.location.z-=Z;o.location.x-=1
 
 # ---------- OCEAN ----------
@@ -970,7 +999,7 @@ def setup_day():
 if DAY: setup_day()
 else: setup_night()
 # ---------- RENDER ----------
-sc.render.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=SAMPLES;sc.cycles.use_denoising=True
+sc.render.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=SAMPLES;sc.cycles.use_denoising=not OPTIONS.no_denoise
 sc.cycles.max_bounces=6;sc.cycles.volume_bounces=1;sc.cycles.volume_step_rate=4;sc.cycles.volume_max_steps=96
 sc.render.resolution_x=1920;sc.render.resolution_y=1080;sc.render.resolution_percentage=100
 sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Punchy'
@@ -979,8 +1008,18 @@ def cam(name,loc,target,lens):
     bpy.ops.object.camera_add(location=loc);c=bpy.context.object;c.name=name;c.data.lens=lens;c.data.clip_end=5000
     c.rotation_euler=(Vector(target)-Vector(loc)).to_track_quat('-Z','Y').to_euler();return c
 cams=[cam("Cam_Wide",(25,-125,9),(0,0,18),40),cam("Cam_Low",(-6,-36,4.5),(2,0,26),20),cam("Cam_Moon",(78,-70,34),(-4,10,9),30),cam("Cam_Gate",(6.5,-31,10),(2,-15,8.5),32)]
-bpy.ops.wm.save_as_mainfile(filepath=OUT+"castle.blend")
-only=ONLY
-for c in cams:
-    if only and c.name not in only: continue
-    sc.camera=c;sc.render.filepath=OUT+f"{PFX}{c.name}.png";bpy.ops.render.render(write_still=True)
+# Save a usable scene before optional still rendering, with portable output paths.
+sc.camera=cams[0]
+sc.render.filepath="//output/"+PFX+sc.camera.name+".png"
+sc["castle_source_sha256"]=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+sc["castle_source_revision"]="audit-fixes-20261108"
+sc["castle_gargoyle_revision"]=2
+bpy.ops.wm.save_as_mainfile(filepath=OUT+"castle.blend",compress=True)
+if OPTIONS.mode=='render':
+    try:
+        for c in cams:
+            if ONLY and c.name not in ONLY: continue
+            sc.camera=c;sc.render.filepath=OUT+f"{PFX}{c.name}.png"
+            bpy.ops.render.render(write_still=True)
+    finally:
+        sc.camera=cams[0];sc.render.filepath="//output/"+PFX+sc.camera.name+".png"
