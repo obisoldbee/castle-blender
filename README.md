@@ -1,38 +1,71 @@
 # 城堡 Blender 项目
 
-程序化城堡主场景、24 小时昼夜动画设置和滴水兽特写。项目不含小天使。
+程序化城堡主场景、24 小时昼夜动画和滴水兽特写。项目不含小天使。
+
+## 当前状态
+
+独立审计提出的三项 P1 已在代码层修复：滴水兽源码与场景的同步路径、保存时缺少默认相机/低采样设置、昼夜循环接缝。最终 `.blend` 重建、结构检查及视觉验收仍待完成，不能把代码修复等同于最终作品通过验收。详见 [整改记录](docs/audit-fixes.md)。
+
+`castle/anim/review3/contact_sheet.jpg` 和仓库内既有特写、静帧是历史产物，不是本轮修复的验收图，保留供比较。原资产保留在 Git 历史，不复制大文件作为备份。
 
 ## 入口
 
-- `castle/castle.blend`：主场景。
-- `castle/castle.py`：程序化建模及静帧渲染脚本。
-- `castle/anim/castle_24h.blend`：已有昼夜动画场景，720 帧、24 fps。
-- `castle/anim.py`：基于已打开主场景建立动画并渲染。
-- `castle/gargoyle_closeups/`：滴水兽独立补丁、特写脚本及参考渲染。
-- `castle/anim/review3/contact_sheet.jpg`：旧动画联系表。
+- `castle/castle.py`：生成主场景；默认只构建，显式选择后才渲染。
+- `castle/castle.blend`：主场景交付入口，是否已更新以整改记录的验收状态为准。
+- `castle/anim.py`：从干净、已保存的主场景生成周期动画。
+- `castle/anim/castle_24h.blend`：动画交付入口，默认渲染范围 1–720 帧、24 fps。
+- `castle/gargoyle_closeups/shots.py`：准备或渲染滴水兽特写。
+- `castle/gargoyle_closeups/fix/gargfix.py`：识别旧场景的有界迁移补丁，不是任意模型修复工具。
 
-## 打开与使用
+## 安全打开
 
-建议 Blender 4.2 LTS；本次在 Blender 4.3.2 使用禁用自动执行模式，成功只读加载两份场景。无外部贴图、字体、链接库或内嵌文本脚本。
+当前开发检查使用 Blender 4.3.2；Blender 4.2 尚未验证。不要把 4.2 视为已确认兼容版本。
 
 ```sh
 blender --disable-autoexec castle/castle.blend
 ```
 
-先直接打开 `.blend` 检查场景。Python 脚本会修改场景、保存文件并开始渲染，不是只读查看工具。`castle.py` 还会清空当前场景；请在独立 Blender 进程运行，不要在未保存的工作中执行。脚本输出已改为相对脚本位置的 `castle/output/`，不会覆盖本仓库原始 `.blend`。手工渲染已存动画前也应设置自己的输出目录；场景文件保留交接时输出路径。
+脚本依赖 Blender 自带的 `bpy`、`bmesh`、`mathutils` 和 Python 标准库。运行脚本会修改内存场景并可能保存文件；`castle.py` 会清空当前场景。请使用独立 Blender 进程，不在未保存的工作中运行。参数和输出覆盖检查在场景修改前执行，但不代替备份。
 
-源码只依赖 Blender 自带 `bpy`、`bmesh`、`mathutils` 和 Python 标准库。未安装额外依赖，未执行完整渲染。
+## 构建和渲染
 
-## 当前限制
+以下命令从仓库根目录执行；每次选择新的输出目录，示例路径不应与已有交付物重叠。
 
-滴水兽补丁尚未合入 24h 动画，特写图不能证明动画已修复。主建模脚本和已存主场景也未逐项比对同步。外围围墙/四角塔搬迁、排水朝向与背槽仍待做。旧动画还有黄昏偏短、白天蝙蝠、循环接缝亮度、夜景偏暗青、局部亮石抢眼等已知问题。
+```sh
+# 默认仅构建；主场景默认 64 samples，保存为 builds/main-v1/castle.blend。
+blender -b --python castle/castle.py -- --output-dir builds/main-v1
 
-Ocean 修改器使用未烘焙状态，旧临时缓存路径不是必需外部资产；需要烘焙时重新设置路径。
+# 显式生成并渲染一张静帧；64 为样本数，后面可选相机名。
+blender -b --python castle/castle.py -- 64 Cam_Wide --mode render --output-dir builds/still-v1
 
-## 来源与检查
+# 每次从干净主场景开始；动画默认 32 samples、1280×720，仅构建。
+blender -b builds/main-v1/castle.blend --python castle/anim.py -- build --output-dir builds/animation --build-id cycle-v1
 
-由项目所有者提供的独立城堡工程包导入。原包及 11 个清单文件的 SHA256 已校验。只公开城堡相关工程、脚本和参考图；原始交接记录、私人工作区记录、缓存、备份及其他项目不入库。模型和材质为程序化内容，未发现第三方外部资产；未另行授予开源许可证。
+# 显式渲染完整动画；final 默认 32 samples，可通过 --samples 提高。
+blender -b builds/main-v1/castle.blend --python castle/anim.py -- final --render --samples 32 --output-dir builds/animation --build-id cycle-render-v1
 
-`MANIFEST.sha256` 记录本次发布文件摘要；两份 `.blend` 采用 Blender 支持的无损 gzip 压缩，解压后字节与原文件完全一致。
+# 显式渲染低分辨率关键帧（keys 模式为 640×360、12 samples）。
+blender -b builds/main-v1/castle.blend --python castle/anim.py -- keys --render --output-dir builds/animation --build-id keys-v1
+```
 
-本次只做目录治理、路径便携化与静态/加载检查，不代表视觉修复或完整渲染验收通过。
+主脚本支持 `--night`、四个相机名 `Cam_Wide` / `Cam_Low` / `Cam_Moon` / `Cam_Gate`。主场景及特写输出文件已存在时拒绝覆盖；只有明确传入 `--force` 才允许覆盖。保存的主场景使用相对渲染路径 `//output/…`；显式脚本静帧渲染写入所选输出目录。
+
+动画脚本拒绝重复加工已经动画化的场景。动画输出位于 `--output-dir` 下独立构建子目录：指定 `--build-id`，或使用输入、脚本、参数等生成的指纹。已存在的子目录一律拒绝复用，包括半成品目录，避免混入旧帧。`build.json` 记录构建身份，帧输出使用相对路径 `//frames/`。
+
+无 OpenImageDenoise 支持的 Blender 构建，可显式加入 `--no-denoise` 做诊断；这不保证低采样画面的质量。`preview` 模式是 640×360、8 samples、每 4 帧；没有 `--render` 仍然不渲染。
+
+特写默认只准备相机，不保存场景、不渲染。需要图片时：
+
+```sh
+blender -b builds/animation/cycle-v1/castle_24h.blend --python castle/gargoyle_closeups/shots.py -- 64 all 100 --mode render --output-dir builds/closeups-v1
+```
+
+特写可把 `all` 换成 `g1_threequarter_day`、`g2_profile_day`、`g3_from_below` 或 `g4_dusk`；最后一个位置参数为分辨率百分比。旧场景布局不匹配时补丁会拒绝执行，不盲目平移或重复添加托座。
+
+## 边界与来源
+
+模型仍是程序化作品，不是精雕成品。滴水兽嘴部有开口薄壁，但没有完整背槽或经过验证的排水通道。外围围墙、角塔布局未调整。历史图中夜景、局部高光等艺术问题仍须由新渲染复核。
+
+动画第 721 帧是与第 1 帧对应的循环端点，只渲染第 1–720 帧；海面采用两层相位错开的互补权重，降低重置接缝，不代表海岸水体物理仿真已通过验证。
+
+工程由项目所有者提供。只发布城堡相关工程、脚本和参考图，不包含私人交接记录、凭据或其他项目。程序化模型和材质未另行授予开源许可证。`MANIFEST.sha256` 用于发布文件摘要，须在最终资产替换后重新生成并校验。
