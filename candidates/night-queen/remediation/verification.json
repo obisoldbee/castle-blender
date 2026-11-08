@@ -1,0 +1,8 @@
+{
+  "removed": [
+    "GEO-body_female_realistic.eye.L",
+    "GEO-body_female_realistic.eye.R"
+  ],
+  "added": [],
+  "changed_geometry_or_transform": []
+}

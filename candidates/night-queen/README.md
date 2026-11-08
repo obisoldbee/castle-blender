@@ -20,3 +20,6 @@
 6. 狮子、猫头鹰未建；侧背面是现代补全，不冒称考古复原。
 
 审查应分别给证据、优先级、具体几何改法、验收相机/指标；没有实际读取 blend 时须明说，不能用图片推断拓扑检查已完成。
+
+## Review follow-through
+See [REVIEW_ACTIONS.md](REVIEW_ACTIONS.md). A separate technical-cleanup successor is in `remediation/`; it is **not** a visually accepted revision.

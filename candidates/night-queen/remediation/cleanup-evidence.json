@@ -1,0 +1,41 @@
+{
+  "scope": "technical cleanup only; not visual approval",
+  "removed": [
+    {
+      "name": "GEO-body_female_realistic.eye.L",
+      "world_bounds": [
+        [
+          2.317628860473633,
+          2.3981192111968994
+        ],
+        [
+          -0.3914969861507416,
+          -0.3113492727279663
+        ],
+        [
+          5.231212139129639,
+          5.311784267425537
+        ]
+      ]
+    },
+    {
+      "name": "GEO-body_female_realistic.eye.R",
+      "world_bounds": [
+        [
+          2.1276113986968994,
+          2.208123207092285
+        ],
+        [
+          -0.3915587365627289,
+          -0.31133919954299927
+        ],
+        [
+          5.2312116622924805,
+          5.311783790588379
+        ]
+      ]
+    }
+  ],
+  "remaining_objects": 112,
+  "formal_scene_changed": false
+}
