@@ -1,0 +1,280 @@
+{
+  "blender": "4.3.2",
+  "objects": 2678,
+  "active_camera": "CamOrbit",
+  "output": "//frames/f_",
+  "samples": 32,
+  "texts": 0,
+  "drivers": 0,
+  "external_libraries": 0,
+  "collections": [
+    "Architecture",
+    "Cameras",
+    "Construction_Cutters",
+    "Environment",
+    "Gargoyles",
+    "Lighting"
+  ],
+  "provenance": {
+    "castle_source_sha256": "7652ace3100c3c62a666baf77c1011018d544d9cdd24d4147e8b7511f7ab89fe",
+    "castle_source_revision": "audit-fixes-20261108-sculpture",
+    "castle_gargoyle_revision": 2,
+    "castle_animation_version": "audit-v2",
+    "castle_build_fingerprint": "281a2ee4c984da49f4bc59a6cb697447fd89842157cd19184ac26ae58e4739a9",
+    "castle_loop_endpoint": 721
+  },
+  "gargoyles": {
+    "garg_corbel": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.001": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.002": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.003": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.004": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.005": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.006": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.007": {
+      "castle_asset": "gargoyle_corbel"
+    }
+  },
+  "gargoyle_assets": {
+    "gargoyle_corbel": 8,
+    "gargoyle_sculpture": 112
+  },
+  "finials": [
+    {
+      "ball": "Sphere.048",
+      "cone": "Cone.067",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.049",
+      "cone": "Cone.068",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.050",
+      "cone": "Cone.069",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.051",
+      "cone": "Cone.070",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.059",
+      "cone": "Cone.098",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.060",
+      "cone": "Cone.099",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.061",
+      "cone": "Cone.100",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.062",
+      "cone": "Cone.101",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.070",
+      "cone": "Cone.129",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.071",
+      "cone": "Cone.130",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.072",
+      "cone": "Cone.131",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.073",
+      "cone": "Cone.132",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.081",
+      "cone": "Cone.160",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.082",
+      "cone": "Cone.161",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.083",
+      "cone": "Cone.162",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.084",
+      "cone": "Cone.163",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.092",
+      "cone": "Cone.191",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.093",
+      "cone": "Cone.192",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.094",
+      "cone": "Cone.193",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.095",
+      "cone": "Cone.194",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.103",
+      "cone": "Cone.222",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.104",
+      "cone": "Cone.223",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.105",
+      "cone": "Cone.224",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.106",
+      "cone": "Cone.225",
+      "gap": -0.03999900817871094
+    }
+  ],
+  "frames": {
+    "1": {
+      "camera": [
+        1.0,
+        -135.0,
+        14.0
+      ],
+      "camera_rotation": [
+        0.7019270658493042,
+        0.7122488617897034,
+        0.0,
+        0.0
+      ],
+      "lens": 38.0,
+      "moon": [
+        -218.22618103027344,
+        4933.61767578125,
+        782.1723022460938
+      ],
+      "exposure": 1.75
+    },
+    "2": {
+      "camera": [
+        2.1780645847320557,
+        -134.9928436279297,
+        14.00080680847168
+      ],
+      "camera_rotation": [
+        0.701922595500946,
+        0.7122402787208557,
+        0.0030623849015682936,
+        0.00301802228204906
+      ],
+      "lens": 38.0,
+      "moon": [
+        -218.2261505126953,
+        4933.61669921875,
+        782.17724609375
+      ],
+      "exposure": 1.75
+    },
+    "719": {
+      "camera": [
+        -1.355760931968689,
+        -134.96145629882812,
+        14.046771049499512
+      ],
+      "camera_rotation": [
+        0.7020406126976013,
+        0.7120850086212158,
+        -0.006123539991676807,
+        -0.006037164479494095
+      ],
+      "lens": 37.99280548095703,
+      "moon": [
+        -218.2260284423828,
+        4933.61474609375,
+        782.1920776367188
+      ],
+      "exposure": 1.75
+    },
+    "720": {
+      "camera": [
+        -0.1780427247285843,
+        -134.99032592773438,
+        14.01179027557373
+      ],
+      "camera_rotation": [
+        0.7019556760787964,
+        0.7122076749801636,
+        -0.003062244039028883,
+        -0.0030181638430804014
+      ],
+      "lens": 37.99818420410156,
+      "moon": [
+        -218.2261505126953,
+        4933.61669921875,
+        782.17724609375
+      ],
+      "exposure": 1.75
+    },
+    "721": {
+      "camera": [
+        1.0,
+        -135.0,
+        14.0
+      ],
+      "camera_rotation": [
+        0.7019270658493042,
+        0.7122488617897034,
+        0.0,
+        0.0
+      ],
+      "lens": 38.0,
+      "moon": [
+        -218.22618103027344,
+        4933.61767578125,
+        782.1723022460938
+      ],
+      "exposure": 1.75
+    }
+  }
+}

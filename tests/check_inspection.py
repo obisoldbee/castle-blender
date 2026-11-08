@@ -6,6 +6,7 @@ assert r['active_camera'], 'missing active camera'
 assert r['samples']>=16, 'preview samples saved in release scene'
 assert r['output'].startswith('//'), 'saved output must be Blender-relative'
 assert not r['texts'] and not r['drivers'] and not r['external_libraries'], 'unexpected executable/external dependency'
+assert r['gargoyle_assets']=={'gargoyle_corbel':8,'gargoyle_sculpture':112}, 'missing gargoyle assets'
 assert len(r['finials'])==24, f"expected 24 finial contacts, got {len(r['finials'])}"
 assert max(p['gap'] for p in r['finials'])<=.001, 'floating finial'
 if 'frames' in r:

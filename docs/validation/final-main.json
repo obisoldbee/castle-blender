@@ -1,0 +1,175 @@
+{
+  "blender": "4.3.2",
+  "objects": 2666,
+  "active_camera": "Cam_Wide",
+  "output": "//output/day_Cam_Wide.png",
+  "samples": 64,
+  "texts": 0,
+  "drivers": 0,
+  "external_libraries": 0,
+  "collections": [
+    "Architecture",
+    "Cameras",
+    "Construction_Cutters",
+    "Environment",
+    "Gargoyles",
+    "Lighting"
+  ],
+  "provenance": {
+    "castle_source_sha256": "7652ace3100c3c62a666baf77c1011018d544d9cdd24d4147e8b7511f7ab89fe",
+    "castle_source_revision": "audit-fixes-20261108-sculpture",
+    "castle_gargoyle_revision": 2
+  },
+  "gargoyles": {
+    "garg_corbel": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.001": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.002": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.003": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.004": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.005": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.006": {
+      "castle_asset": "gargoyle_corbel"
+    },
+    "garg_corbel.007": {
+      "castle_asset": "gargoyle_corbel"
+    }
+  },
+  "gargoyle_assets": {
+    "gargoyle_corbel": 8,
+    "gargoyle_sculpture": 112
+  },
+  "finials": [
+    {
+      "ball": "Sphere.048",
+      "cone": "Cone.067",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.049",
+      "cone": "Cone.068",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.050",
+      "cone": "Cone.069",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.051",
+      "cone": "Cone.070",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.059",
+      "cone": "Cone.098",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.060",
+      "cone": "Cone.099",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.061",
+      "cone": "Cone.100",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.062",
+      "cone": "Cone.101",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.070",
+      "cone": "Cone.129",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.071",
+      "cone": "Cone.130",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.072",
+      "cone": "Cone.131",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.073",
+      "cone": "Cone.132",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.081",
+      "cone": "Cone.160",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.082",
+      "cone": "Cone.161",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.083",
+      "cone": "Cone.162",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.084",
+      "cone": "Cone.163",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.092",
+      "cone": "Cone.191",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.093",
+      "cone": "Cone.192",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.094",
+      "cone": "Cone.193",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.095",
+      "cone": "Cone.194",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.103",
+      "cone": "Cone.222",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.104",
+      "cone": "Cone.223",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.105",
+      "cone": "Cone.224",
+      "gap": -0.03999900817871094
+    },
+    {
+      "ball": "Sphere.106",
+      "cone": "Cone.225",
+      "gap": -0.03999900817871094
+    }
+  ]
+}

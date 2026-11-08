@@ -1,0 +1,40 @@
+{
+  "input_sha256": "57b964e4bc82d4f85459fbb7fbd14e58172cad1fb0d469529ab049195026f6a1",
+  "script_sha256": "c38ddf09f8627163909d00f10f50bb6294762736797db49a3e345f0364ad1c45",
+  "blender": "4.3.2",
+  "config": {
+    "mode": "build",
+    "render": false,
+    "samples": 32,
+    "width": 1280,
+    "height": 720,
+    "step": 1,
+    "start": 1,
+    "end": 720,
+    "keys": "dawn:110,noon:245,dusk:385,night:560,loop_end:720",
+    "no_denoise": true,
+    "key_frames": [
+      [
+        "dawn",
+        110
+      ],
+      [
+        "noon",
+        245
+      ],
+      [
+        "dusk",
+        385
+      ],
+      [
+        "night",
+        560
+      ],
+      [
+        "loop_end",
+        720
+      ]
+    ]
+  },
+  "fingerprint": "281a2ee4c984da49f4bc59a6cb697447fd89842157cd19184ac26ae58e4739a9"
+}

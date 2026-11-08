@@ -25,8 +25,8 @@ t3=head(15.28,5.02,19.8,0,.7)
 t1=head(2.11,.82,31.26,-math.pi/2-.55,1.0)-Vector((math.cos(-math.pi/2-.55),math.sin(-math.pi/2-.55),0))*2.6*.12   # great tower, sea side
 t2=head(15.28,-0.98,19.8,0,.7)                 # buttress pier east
 SH={ # name: (target, cam offset, lens, frame)
- 'g1_threequarter_day':(t1,Vector((1.8,-5.8,1.4)),75,250),
- 'g2_profile_day':(t2,Vector((0.6,-5.0,0.4)),70,250),
+ 'g1_threequarter_day':(t1,Vector((1.8,-5.8,1.4)),50,250),
+ 'g2_profile_day':(t2,Vector((0.6,-5.0,0.4)),50,250),
  'g3_from_below':(t3+Vector((-0.3,0,-0.8)),Vector((2.0,1.8,-1.6)),30,230),
  'g4_dusk':(t1+Vector((0.45,0.75,-0.1)),Vector((4.5,-4.5,0.4)),50,385),
 }

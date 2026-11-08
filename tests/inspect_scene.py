@@ -4,8 +4,9 @@ from pathlib import Path
 from mathutils import Vector
 args=sys.argv[sys.argv.index('--')+1:]
 out=Path(args[0]); s=bpy.context.scene
-report={'blender':bpy.app.version_string,'objects':len(s.objects),'active_camera':s.camera.name if s.camera else None,'output':s.render.filepath,'samples':s.cycles.samples,'texts':len(bpy.data.texts),'drivers':sum(len(x.animation_data.drivers) for x in list(bpy.data.objects)+list(bpy.data.materials)+list(bpy.data.worlds) if x.animation_data),'external_libraries':len(bpy.data.libraries),'collections':[c.name for c in bpy.data.collections], 'provenance':dict(s.items())}
+report={'blender':bpy.app.version_string,'objects':len(s.objects),'active_camera':s.camera.name if s.camera else None,'output':s.render.filepath,'samples':s.cycles.samples,'texts':len(bpy.data.texts),'drivers':sum(len(x.animation_data.drivers) for x in list(bpy.data.objects)+list(bpy.data.materials)+list(bpy.data.worlds) if x.animation_data),'external_libraries':len(bpy.data.libraries),'collections':[c.name for c in bpy.data.collections], 'provenance':{k:s[k] for k in s.keys() if k.startswith('castle_')}}
 report['gargoyles']={o.name:dict(o.items()) for o in s.objects if 'garg' in o.name.lower()}
+report['gargoyle_assets']={tag:sum(o.get('castle_asset')==tag for o in s.objects) for tag in ('gargoyle_corbel','gargoyle_sculpture')}
 report['finials']=[]
 # Match small sphere geometry to nearby vertical thin cone geometry, by original bounds.
 cones=[]; balls=[]

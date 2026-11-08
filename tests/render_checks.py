@@ -6,6 +6,11 @@ s=bpy.context.scene
 assert s.camera, 'Release must have an active camera'
 s.render.resolution_x=480;s.render.resolution_y=270;s.render.resolution_percentage=100
 s.render.engine='CYCLES';s.cycles.device='CPU';s.cycles.samples=8;s.cycles.use_denoising=False
+# Coarse ocean only for low-memory composition diagnostics; never saved.
+for o in s.objects:
+ for m in o.modifiers:
+  if m.type=='OCEAN': m.resolution=7;m.viewport_resolution=5
+s.render.use_persistent_data=False
 s.render.threads_mode='FIXED';s.render.threads=4
 s.render.image_settings.file_format='PNG';s.render.use_placeholder=False;s.render.use_overwrite=True
 frames=[int(f) for f in args[1:]] or [1]

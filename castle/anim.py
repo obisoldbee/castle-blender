@@ -242,14 +242,14 @@ for f in range(F0,FEND+1):
     md_=Vector((math.cos(mel)*math.cos(MAZ),math.cos(mel)*math.sin(MAZ),math.sin(mel)))
     md.location=md_*D;md.keyframe_insert('location',frame=f)
     md.hide_render=False
-    em.inputs[1].default_value=14*nightf+0.0;em.inputs[1].keyframe_insert('default_value',frame=f)
+    em.inputs[1].default_value=.45*nightf;em.inputs[1].keyframe_insert('default_value',frame=f)
     moon.rotation_euler=(-md_).to_track_quat('-Z','Y').to_euler('XYZ',moon.rotation_euler);moon.keyframe_insert('rotation_euler',frame=f)
     moon.data.energy=4.5*nightf;moon.data.keyframe_insert('energy',frame=f)
     mfill.data.energy=1.1*nightf;mfill.data.keyframe_insert('energy',frame=f)
     for l in WL:
         l.data.energy=900*nightf;l.data.keyframe_insert('energy',frame=f)
-    gb.inputs["Emission Strength"].default_value=6*nightf;gb.inputs["Emission Strength"].keyframe_insert('default_value',frame=f)
-    sc.view_settings.exposure=1.75*nightf+0.25*(1-day)*(1-nightf);sc.view_settings.keyframe_insert('exposure',frame=f)
+    gb.inputs["Emission Strength"].default_value=1.8*nightf;gb.inputs["Emission Strength"].keyframe_insert('default_value',frame=f)
+    sc.view_settings.exposure=1.75*nightf+0.25*(1-day)*(1-nightf)+.9*wglow;sc.view_settings.keyframe_insert('exposure',frame=f)
 
 # ---------------- CAMERA: one continuous eased path ----------------
 def lerp(a,b,t): return a+(b-a)*t
