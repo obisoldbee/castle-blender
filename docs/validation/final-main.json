@@ -16,9 +16,10 @@
     "Lighting"
   ],
   "provenance": {
-    "castle_source_sha256": "7652ace3100c3c62a666baf77c1011018d544d9cdd24d4147e8b7511f7ab89fe",
+    "castle_source_sha256": "b6ac08e5841bd877458230ca7dea1c9ace5900cb9a6728f83955099a5f33bc78",
     "castle_source_revision": "audit-fixes-20261108-sculpture",
-    "castle_gargoyle_revision": 2
+    "castle_gargoyle_revision": 2,
+    "castle_roof_height_scale": 0.65
   },
   "gargoyles": {
     "garg_corbel": {

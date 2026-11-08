@@ -16,11 +16,12 @@
     "Lighting"
   ],
   "provenance": {
-    "castle_source_sha256": "7652ace3100c3c62a666baf77c1011018d544d9cdd24d4147e8b7511f7ab89fe",
+    "castle_source_sha256": "b6ac08e5841bd877458230ca7dea1c9ace5900cb9a6728f83955099a5f33bc78",
     "castle_source_revision": "audit-fixes-20261108-sculpture",
     "castle_gargoyle_revision": 2,
+    "castle_roof_height_scale": 0.65,
     "castle_animation_version": "audit-v2",
-    "castle_build_fingerprint": "281a2ee4c984da49f4bc59a6cb697447fd89842157cd19184ac26ae58e4739a9",
+    "castle_build_fingerprint": "ac0db095ca828a34ea814d602ffc7488c72c3e5dd5fff0c5c2855b3ba74dc9cf",
     "castle_loop_endpoint": 721
   },
   "gargoyles": {

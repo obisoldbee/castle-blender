@@ -1,0 +1,234 @@
+{
+  "blender": "4.3.2",
+  "roof_count": 15,
+  "dormer_count": 20,
+  "roofs": [
+    {
+      "roof": "Cone",
+      "height": 3.199298858642578,
+      "radius": 2.09,
+      "ratio": 0.7653825020676025,
+      "original_height": 4.922
+    },
+    {
+      "roof": "Cone.001",
+      "height": 3.199298858642578,
+      "radius": 2.09,
+      "ratio": 0.7653825020676025,
+      "original_height": 4.922
+    },
+    {
+      "roof": "Cone.002",
+      "height": 3.199298858642578,
+      "radius": 2.09,
+      "ratio": 0.7653825020676025,
+      "original_height": 4.922
+    },
+    {
+      "roof": "Cone.003",
+      "height": 3.199298858642578,
+      "radius": 2.09,
+      "ratio": 0.7653825020676025,
+      "original_height": 4.922
+    },
+    {
+      "roof": "Cone.004",
+      "height": 3.199298858642578,
+      "radius": 2.09,
+      "ratio": 0.7653825020676025,
+      "original_height": 4.922
+    },
+    {
+      "roof": "Cone.005",
+      "height": 3.199298858642578,
+      "radius": 2.09,
+      "ratio": 0.7653825020676025,
+      "original_height": 4.922
+    },
+    {
+      "roof": "Cone.015",
+      "height": 2.086498260498047,
+      "radius": 1.4500000000000002,
+      "ratio": 0.7194821587924298,
+      "original_height": 3.21
+    },
+    {
+      "roof": "Cone.016",
+      "height": 2.086498260498047,
+      "radius": 1.4500000000000002,
+      "ratio": 0.7194821587924298,
+      "original_height": 3.21
+    },
+    {
+      "roof": "Cone.017",
+      "height": 2.3152999877929688,
+      "radius": 1.612,
+      "ratio": 0.7181451575040225,
+      "original_height": 3.5620000000000003
+    },
+    {
+      "roof": "Cone.018",
+      "height": 2.3152999877929688,
+      "radius": 1.612,
+      "ratio": 0.7181451575040225,
+      "original_height": 3.5620000000000003
+    },
+    {
+      "roof": "Cone.019",
+      "height": 2.3152999877929688,
+      "radius": 1.612,
+      "ratio": 0.7181451575040225,
+      "original_height": 3.5620000000000003
+    },
+    {
+      "roof": "Cone.020",
+      "height": 2.3152999877929688,
+      "radius": 1.612,
+      "ratio": 0.7181451575040225,
+      "original_height": 3.5620000000000003
+    },
+    {
+      "roof": "Cone.021",
+      "height": 5.2052001953125,
+      "radius": 2.33,
+      "ratio": 1.11699575006706,
+      "original_height": 8.008000000000001
+    },
+    {
+      "roof": "Cone.022",
+      "height": 3.2032012939453125,
+      "radius": 1.5300000000000002,
+      "ratio": 1.04679780847886,
+      "original_height": 4.928000000000001
+    },
+    {
+      "roof": "Cone.023",
+      "height": 2.9172019958496094,
+      "radius": 1.488,
+      "ratio": 0.9802426061322612,
+      "original_height": 4.488
+    }
+  ],
+  "dormers": [
+    {
+      "body": "Cube.983",
+      "owner": "Cone",
+      "min_radial_clearance": -0.5539275612292995,
+      "max_radial_clearance": 0.42559181532968426
+    },
+    {
+      "body": "Cube.985",
+      "owner": "Cone",
+      "min_radial_clearance": -0.5539268213379085,
+      "max_radial_clearance": 0.42559182956398245
+    },
+    {
+      "body": "Cube.987",
+      "owner": "Cone.001",
+      "min_radial_clearance": -0.553927101346207,
+      "max_radial_clearance": 0.425591851801044
+    },
+    {
+      "body": "Cube.989",
+      "owner": "Cone.001",
+      "min_radial_clearance": -0.5539265198023766,
+      "max_radial_clearance": 0.4255921034734753
+    },
+    {
+      "body": "Cube.991",
+      "owner": "Cone.002",
+      "min_radial_clearance": -0.553926747438392,
+      "max_radial_clearance": 0.42559200792468266
+    },
+    {
+      "body": "Cube.993",
+      "owner": "Cone.002",
+      "min_radial_clearance": -0.5539263129152283,
+      "max_radial_clearance": 0.4255920953343433
+    },
+    {
+      "body": "Cube.995",
+      "owner": "Cone.003",
+      "min_radial_clearance": -0.5539254169373213,
+      "max_radial_clearance": 0.42559175582302444
+    },
+    {
+      "body": "Cube.997",
+      "owner": "Cone.003",
+      "min_radial_clearance": -0.5539266209613409,
+      "max_radial_clearance": 0.425591504395052
+    },
+    {
+      "body": "Cube.999",
+      "owner": "Cone.004",
+      "min_radial_clearance": -0.5539274967978991,
+      "max_radial_clearance": 0.4255925255983455
+    },
+    {
+      "body": "Cube.1001",
+      "owner": "Cone.004",
+      "min_radial_clearance": -0.5539266182687721,
+      "max_radial_clearance": 0.42559187749322147
+    },
+    {
+      "body": "Cube.1003",
+      "owner": "Cone.005",
+      "min_radial_clearance": -0.5539265976406766,
+      "max_radial_clearance": 0.42559173279566087
+    },
+    {
+      "body": "Cube.1005",
+      "owner": "Cone.005",
+      "min_radial_clearance": -0.5539271312344114,
+      "max_radial_clearance": 0.4255924957438002
+    },
+    {
+      "body": "Cube.1007",
+      "owner": "Cone.015",
+      "min_radial_clearance": -0.4351841585644638,
+      "max_radial_clearance": 0.22148821938269436
+    },
+    {
+      "body": "Cube.1009",
+      "owner": "Cone.015",
+      "min_radial_clearance": -0.43518478700034313,
+      "max_radial_clearance": 0.22148775291814804
+    },
+    {
+      "body": "Cube.1011",
+      "owner": "Cone.016",
+      "min_radial_clearance": -0.4351849588219756,
+      "max_radial_clearance": 0.2214888344599404
+    },
+    {
+      "body": "Cube.1013",
+      "owner": "Cone.016",
+      "min_radial_clearance": -0.4351844724323034,
+      "max_radial_clearance": 0.22148793870880157
+    },
+    {
+      "body": "Cube.1015",
+      "owner": "Cone.021",
+      "min_radial_clearance": -0.5509067757079149,
+      "max_radial_clearance": 0.40906220969606144
+    },
+    {
+      "body": "Cube.1017",
+      "owner": "Cone.021",
+      "min_radial_clearance": -0.5509067757079149,
+      "max_radial_clearance": 0.40906220969606144
+    },
+    {
+      "body": "Cube.1019",
+      "owner": "Cone.022",
+      "min_radial_clearance": -0.3970181715417048,
+      "max_radial_clearance": 0.20770416532823344
+    },
+    {
+      "body": "Cube.1021",
+      "owner": "Cone.022",
+      "min_radial_clearance": -0.39701811193964287,
+      "max_radial_clearance": 0.2077040906191614
+    }
+  ]
+}
