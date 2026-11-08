@@ -1,27 +1,114 @@
-# 24h day-cycle animation built on top of castle.blend (day build)
-import bpy, math, sys
+"""Build a 720-frame periodic day cycle from a clean castle scene.
+
+Default: build and save only. Rendering requires --render. Re-open the clean
+castle.blend before each build; an animated input is rejected before mutation.
+"""
+import argparse
+import hashlib
+import json
+import math
+import re
+import sys
 from pathlib import Path
-OUTPUT=Path(__file__).resolve().parent / "output" / "anim"
-OUTPUT.mkdir(parents=True, exist_ok=True)
-from mathutils import Vector
-A=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
-MODE=A[0] if A else 'preview'
-sc=bpy.context.scene
-F0,F1=1,720
-sc.frame_start,sc.frame_end=F0,F1;sc.render.fps=24
-TODK=[(1,4.0),(60,5.3),(170,7.6),(320,16.4),(430,18.7),(720,28.0)]   # slow dawn/dusk (~4.5 s each), long night
+
+F0, F1, FEND = 1, 720, 721
+TODK = [(1,4.0),(60,5.3),(170,7.6),(320,16.4),(430,18.7),(721,28.0)]
+
+def positive_int(value):
+    value = int(value)
+    if value <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return value
+
+def parse_options(argv):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("mode", nargs="?", choices=("build", "preview", "final", "keys"), default="build")
+    parser.add_argument("--render", action="store_true", help="explicitly render after saving")
+    parser.add_argument("--samples", type=positive_int, default=32)
+    parser.add_argument("--width", type=positive_int, default=1280)
+    parser.add_argument("--height", type=positive_int, default=720)
+    parser.add_argument("--step", type=positive_int, default=1)
+    parser.add_argument("--start", type=positive_int, default=1)
+    parser.add_argument("--end", type=positive_int, default=720)
+    parser.add_argument("--keys", default="dawn:110,noon:245,dusk:385,night:560,loop_end:720")
+    parser.add_argument("--output-dir", type=Path, default=Path(__file__).resolve().parent / "output" / "anim")
+    parser.add_argument("--build-id", default=None)
+    parser.add_argument("--no-denoise", action="store_true", help="explicit fallback for Blender builds without OpenImageDenoise")
+    options = parser.parse_args(argv)
+    if not 1 <= options.start <= options.end <= 720:
+        parser.error("frame range must be within 1..720")
+    keys = []
+    for token in options.keys.split(","):
+        match = re.fullmatch(r"([A-Za-z0-9_-]+):(\d+)", token)
+        if not match or not 1 <= int(match[2]) <= 720:
+            parser.error("--keys requires safe-name:frame entries within 1..720")
+        keys.append((match[1], int(match[2])))
+    options.key_frames = keys
+    if options.build_id is not None and not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", options.build_id):
+        parser.error("--build-id must be a short safe directory name")
+    if options.mode == "build" and options.render:
+        parser.error("choose preview, final or keys with --render")
+    return options
+
+def phase(f):
+    return (f-F0)/(FEND-F0)
+
+def ocean_state(f, offset=0.0):
+    # Each forward-running wave layer resets only at its zero-amplitude point.
+    # sin^2 weights and their derivatives vanish at the reset; weights sum to 1.
+    p = (phase(f)+offset) % 1.0
+    return 30.0*p, math.sin(math.pi*p)**2
+
 def tod(f):
+    # C1 interpolation, including the day-cycle seam. Preserve authored timing.
     for (fa,ha),(fb,hb) in zip(TODK,TODK[1:]):
-        if fa<=f<=fb: return ha+(hb-ha)*(f-fa)/(fb-fa)
+        if fa <= f <= fb:
+            t=(f-fa)/(fb-fa)
+            return ha+(hb-ha)*t*t*(3-2*t)
     return TODK[-1][1]
+
+def moon_elevation(f):
+    return math.radians(9+3*(1-math.cos(2*math.pi*phase(f)))/2)
+
+def sstep(e0,e1,x):
+    t=max(0,min(1,(x-e0)/(e1-e0)))
+    return t*t*(3-2*t)
+
 def sun_dir(f):
     h=tod(f);ang=2*math.pi*(h-6)/24
-    el=math.radians(58)*math.sin(ang)                # +58 deg at noon, -58 at midnight
-    az=math.pi*.15+ang                                # sun travels east->south->west
+    el=math.radians(58)*math.sin(ang)
+    az=math.pi*.15+ang
     return Vector((math.cos(el)*math.cos(az),math.cos(el)*math.sin(az),math.sin(el))).normalized(),el
-def sstep(e0,e1,x):
-    t=max(0,min(1,(x-e0)/(e1-e0)));return t*t*(3-2*t)
 
+# All command validation precedes even importing Blender or changing the scene.
+OPTIONS = parse_options(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+import bpy
+from mathutils import Vector
+sc = bpy.context.scene
+if sc.get("castle_animation_version") or bpy.data.objects.get("CamOrbit"):
+    raise RuntimeError("Animation already present. Re-open the clean castle.blend; repeat builds cannot accumulate objects.")
+if not bpy.data.filepath:
+    raise RuntimeError("Open a saved clean castle.blend before building animation.")
+if any(bpy.data.materials.get(n) is None for n in ("glass", "sea")):
+    raise RuntimeError("Input scene is missing required castle materials.")
+oceans = [o for o in sc.objects if any(m.type == 'OCEAN' for m in o.modifiers)]
+if len(oceans) != 1:
+    raise RuntimeError("Input must contain exactly one ocean object.")
+if not OPTIONS.no_denoise:
+    try:
+        sc.cycles.denoiser='OPENIMAGEDENOISE'
+    except TypeError as exc:
+        raise RuntimeError("This Blender build lacks OpenImageDenoise; use explicit --no-denoise for diagnostics.") from exc
+input_sha = hashlib.sha256(Path(bpy.data.filepath).read_bytes()).hexdigest()
+config = {k: str(v) if isinstance(v, Path) else v for k,v in vars(OPTIONS).items() if k not in ("output_dir", "build_id")}
+identity = {"input_sha256": input_sha, "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "blender": bpy.app.version_string, "config": config}
+fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+OUTPUT = OPTIONS.output_dir.resolve() / (OPTIONS.build_id or fingerprint[:16])
+# Refuse reuse, including partial jobs: no mixed old frames or empty placeholders.
+OUTPUT.mkdir(parents=True, exist_ok=False)
+(OUTPUT / "build.json").write_text(json.dumps({**identity, "fingerprint": fingerprint}, indent=2)+"\n")
+MODE=OPTIONS.mode
+sc.frame_start,sc.frame_end=F0,F1;sc.render.fps=24
 # ---------------- WORLD: Nishita day + night sky with stars ----------------
 w=bpy.data.worlds.new("cycle");sc.world=w;w.use_nodes=True;nt=w.node_tree;nt.nodes.clear()
 out=nt.nodes.new("ShaderNodeOutputWorld");bg=nt.nodes.new("ShaderNodeBackground");nt.links.new(bg.outputs[0],out.inputs[0])
@@ -109,17 +196,35 @@ for p in [(2,-1.5,16),(-3,4,13),(4,4,28),(3,-14.5,6),(-3,1,23),(-4,10,9),(9,6,12
 glass=bpy.data.materials.get("glass");gb=glass.node_tree.nodes["Principled BSDF"]
 win=bpy.data.materials.get("win")
 
-# ---------------- OCEAN time ----------------
-ocean=[o for o in bpy.data.objects if any(m.type=='OCEAN' for m in o.modifiers)][0]
-om=[m for m in ocean.modifiers if m.type=='OCEAN'][0]
-om.wave_scale=8.0
-om.time=0;om.keyframe_insert('time',frame=F0);om.time=30.0;om.keyframe_insert('time',frame=F1)
+# ---------------- PERIODIC OCEAN ----------------
+ocean=oceans[0]
+om=next(m for m in ocean.modifiers if m.type=='OCEAN')
+# The second displacement samples the first generated mesh. Both retain the
+# authored spectrum, scale and choppiness. No backward wave playback or freeze.
+ob=ocean.modifiers.new("OceanLoopB", 'OCEAN')
+for prop in om.bl_rna.properties:
+    if prop.is_readonly or prop.identifier in {'rna_type','name','type','geometry_mode'}:
+        continue
+    try:
+        setattr(ob,prop.identifier,getattr(om,prop.identifier))
+    except (AttributeError,TypeError):
+        pass
+ob.geometry_mode='DISPLACE'
+# Whitecaps are disabled by the authored animation shader below; do not let an
+# unweighted foam attribute reset while its geometric layer has zero amplitude.
+om.use_foam=False;ob.use_foam=False
+for f in range(F0,FEND+1):
+    for modifier,offset in ((om,0.0),(ob,0.5)):
+        t,weight=ocean_state(f,offset)
+        modifier.time=t;modifier.wave_scale=8.0*weight
+        modifier.keyframe_insert('time',frame=f)
+        modifier.keyframe_insert('wave_scale',frame=f)
 for fc in ocean.animation_data.action.fcurves:
     for k in fc.keyframe_points: k.interpolation='LINEAR'
 
 # ---------------- PER-FRAME KEYS for lighting ----------------
 D=5000
-for f in range(F0,F1+1,6):
+for f in range(F0,FEND+1):
     sd,el=sun_dir(f)
     day=sstep(math.radians(-6),math.radians(8),el)           # 0 at civil twilight -> 1 in daylight
     nightf=1-sstep(math.radians(-10),math.radians(2),el)
@@ -133,7 +238,7 @@ for f in range(F0,F1+1,6):
     vWarm.outputs[0].default_value=wglow;vWarm.outputs[0].keyframe_insert('default_value',frame=f)
     sun.data.color=(1,.95-.5*warm,.87-.7*warm);sun.data.keyframe_insert('color',frame=f)
     sun.data.energy=4.0*sstep(math.radians(-2),math.radians(10),el);sun.data.keyframe_insert('energy',frame=f)
-    MAZ=1.395+.22;mel=math.radians(9+3*sstep(430,720,f))
+    MAZ=1.395+.22;mel=moon_elevation(f)
     md_=Vector((math.cos(mel)*math.cos(MAZ),math.cos(mel)*math.sin(MAZ),math.sin(mel)))
     md.location=md_*D;md.keyframe_insert('location',frame=f)
     md.hide_render=False
@@ -149,9 +254,12 @@ for f in range(F0,F1+1,6):
 # ---------------- CAMERA: one continuous eased path ----------------
 def lerp(a,b,t): return a+(b-a)*t
 def ease(t): return t*t*(3-2*t)
+# Segment goals: gate establishing (1–150), complete tower/bridge facade
+# (150–410), low island silhouette (410–490), aerial geography (490–640),
+# return to gate (640–721). Close sections retain roof margin, not cut-off tops.
 # control points: (frame, radius, height, target z, lens)
-CP=[(1,135,14,16,38),(150,120,20,16,38),(250,45,30,22,28),(330,42,22,18,26),(410,62,6.5,15,24),(490,70,7.5,16,26),
-    (560,115,85,6,30),(640,125,40,12,34),(720,135,14,16,38)]
+CP=[(1,135,14,16,38),(150,120,20,16,38),(250,68,30,23,26),(330,64,22,23,26),(410,75,12,22,24),(490,70,7.5,16,26),
+    (560,115,85,6,30),(640,125,40,12,34),(721,135,14,16,38)]
 def camstate(f):
     for (fa,ra,ha,ta,la),(fb,rb,hb,tb,lb) in zip(CP,CP[1:]):
         if fa<=f<=fb:
@@ -160,9 +268,9 @@ def camstate(f):
 cam=bpy.data.objects.new("CamOrbit",bpy.data.cameras.new("CamOrbit"));sc.collection.objects.link(cam);cam.data.clip_end=20000
 tgt=bpy.data.objects.new("CamTarget",None);sc.collection.objects.link(tgt)
 c=cam.constraints.new('TRACK_TO');c.target=tgt;c.track_axis='TRACK_NEGATIVE_Z';c.up_axis='UP_Y'
-for f in range(F0,F1+1,4):
+for f in range(F0,FEND+1):
     R,H,TZ,LENS=camstate(f)
-    th=-math.pi/2+2*math.pi*(f-F0)/(F1-F0)      # starts on the gate side, one full orbit
+    th=-math.pi/2+2*math.pi*phase(f)      # starts on the gate side, one full orbit
     cam.location=(1+R*math.cos(th),R*math.sin(th),H);cam.keyframe_insert('location',frame=f)
     tgt.location=(1,2,TZ);tgt.keyframe_insert('location',frame=f)
     cam.data.lens=LENS;cam.data.keyframe_insert('lens',frame=f)
@@ -176,7 +284,7 @@ for n in sea.nodes:
     if n.type=='MATH' and n.operation=='MINIMUM' and abs(n.inputs[1].default_value-.85)<1e-4: n.inputs[1].default_value=0.0
     if n.type=='MATH' and n.operation=='SUBTRACT' and abs(n.inputs[1].default_value-.75)<1e-4: n.inputs[1].default_value=5.0   # no open-sea whitecap 'snow'
 # ---------------- RENDER SETTINGS ----------------
-sc.render.engine='CYCLES';sc.cycles.use_denoising=True;sc.cycles.denoiser='OPENIMAGEDENOISE'
+sc.render.engine='CYCLES';sc.cycles.use_denoising=not OPTIONS.no_denoise
 sc.cycles.seed=0;sc.cycles.use_animated_seed=False
 sc.cycles.adaptive_threshold=.02;sc.cycles.adaptive_min_samples=16
 sc.cycles.sample_clamp_direct=8;sc.cycles.sample_clamp_indirect=2;sc.cycles.blur_glossy=1.0
@@ -185,22 +293,36 @@ sc.cycles.denoising_input_passes='RGB_ALBEDO_NORMAL';sc.cycles.denoising_prefilt
 for o in bpy.data.objects:
     if o.name.startswith(("Drops","Splash")): o.hide_render=True
 sc.render.use_persistent_data=True;sc.cycles.max_bounces=4;sc.cycles.use_adaptive_sampling=True
+# Fully keyed curves use linear interpolation: avoid handle overshoot and
+# Euler interpolation wrap between sparsely sampled rotations.
+for block in list(bpy.data.objects)+list(bpy.data.lights)+list(bpy.data.cameras)+[sc,w.node_tree,glass.node_tree,mm.node_tree]:
+    ad=getattr(block,'animation_data',None)
+    if ad and ad.action:
+        for fc in ad.action.fcurves:
+            for k in fc.keyframe_points:
+                k.interpolation='LINEAR'
+sc.render.resolution_x,sc.render.resolution_y=OPTIONS.width,OPTIONS.height
+sc.cycles.samples=OPTIONS.samples;sc.frame_step=OPTIONS.step
 if MODE=='preview':
     sc.render.resolution_x,sc.render.resolution_y=640,360;sc.cycles.samples=8;sc.frame_step=4
-    sc.render.filepath=str(OUTPUT / "preview/f_")
 elif MODE=='keys':
     sc.render.resolution_x,sc.render.resolution_y=640,360;sc.cycles.samples=12
-else:
-    sc.render.resolution_x,sc.render.resolution_y=(int(A[3]),int(A[4])) if len(A)>4 else (1280,720);sc.cycles.samples=int(A[1]) if len(A)>1 else 32;sc.frame_step=int(A[2]) if len(A)>2 else 1
-    sc.render.filepath=(A[5] if len(A)>5 else str(OUTPUT / "final/f_"))
-    if len(A)>7: sc.frame_start,sc.frame_end=int(A[6]),int(A[7])
+sc.frame_start,sc.frame_end=OPTIONS.start,OPTIONS.end
 sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG'
-sc.render.use_overwrite=False;sc.render.use_placeholder=True
-bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT / "castle_24h.blend"))
-KEYS=A[1:] if MODE=='keys' and len(A)>1 else ['dawn1:110','dawn2:140','noon:245','dusk1:380','dusk2:410','night545:545','midnight:600','moon:700','flyby:290']
-if MODE=='keys':
-    # dawn ~06:00, noon, dusk ~18:00, midnight, plus fly-by & aerial
-    for name,f in [(n_,int(f_)) for n_,f_ in (x.split(":") for x in KEYS)]:
-        sc.frame_set(f);sc.render.filepath=str(OUTPUT / f"keys/{name}_{f:03d}.png");bpy.ops.render.render(write_still=True)
-else:
-    bpy.ops.render.render(animation=True)
+sc.render.use_overwrite=False;sc.render.use_placeholder=False
+(OUTPUT / 'frames').mkdir()
+# Relative paths survive moving the entire build directory to another machine.
+sc.render.filepath='//frames/f_'
+sc['castle_animation_version']='audit-v2'
+sc['castle_build_fingerprint']=fingerprint
+sc['castle_loop_endpoint']=FEND
+sc.frame_set(F0)
+bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT / "castle_24h.blend"), compress=True)
+if OPTIONS.render:
+    if MODE=='keys':
+        for name,f in OPTIONS.key_frames:
+            sc.frame_set(f);sc.render.filepath=str(OUTPUT / 'frames' / f"{name}_{f:03d}.png")
+            bpy.ops.render.render(write_still=True)
+    else:
+        bpy.ops.render.render(animation=True)
+print('CASTLE_ANIMATION_BUILD',str(OUTPUT),fingerprint)
