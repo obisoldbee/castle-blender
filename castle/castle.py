@@ -616,18 +616,7 @@ def gargoyle(x,y,z,a,s=1.0):
     for part in set(bpy.data.objects)-before:
         if not part.get("castle_asset"): part["castle_asset"]="gargoyle_sculpture"
 
-def dormer(cx,cy,zb,a,w=.55,owner=""):
-    before=set(bpy.data.objects)
-    ca,sa=math.cos(a),math.sin(a)
-    obox(cx,cy,zb+w*.55,w*.9,w,w*1.1,STONE,0,0,a+math.pi/2)
-    obox(cx+ca*(w*.5+.01),cy+sa*(w*.5+.01),zb+w*.5,w*.5,.04,w*.7,GLASS,0,0,a+math.pi/2)
-    bpy.ops.mesh.primitive_cone_add(vertices=4,radius1=w*.78,depth=w*.9*ROOF_HEIGHT_SCALE,location=(cx,cy,zb+w*1.1+w*.45*ROOF_HEIGHT_SCALE),rotation=(0,0,a+math.pi/4));link(bpy.context.object,ROOF)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=.05,location=(cx,cy,zb+w*1.1+w*.9*ROOF_HEIGHT_SCALE+w*.05),segments=8,ring_count=6);link(bpy.context.object,IRON)
-
-    for part in set(bpy.data.objects)-before:
-        part["castle_asset"]="roof_dormer";part["roof_owner"]=owner;part["dormer_base_z"]=zb
-
-# tower extras: string courses, battered plinths, dormers, gargoyles, finial balls
+# tower extras: string courses, battered plinths, gargoyles, finial balls (roof dormers removed)
 for (x,y,r,h,sp,CB,CR,roof_name) in TOWERS:
     for f in (.33,.63):
         cyl(x,y,h*f,r*1.035,.22,DSTONE,40)
@@ -636,14 +625,10 @@ for (x,y,r,h,sp,CB,CR,roof_name) in TOWERS:
     H=2*r*sp*ROOF_HEIGHT_SCALE;top=CB
     bpy.ops.mesh.primitive_uv_sphere_add(radius=.12,location=(x,y,top+H+.15),segments=12,ring_count=8);link(bpy.context.object,IRON)
     bpy.context.object["castle_asset"]="roof_finial_ball";bpy.context.object["roof_owner"]=roof_name
-    if r>=1.5:
-        out=math.atan2(y-2,x-1)
-        for j in (-.9,.9):
-            a=out+j;t=.22;rr=CR*(1-t)
-            dormer(x+math.cos(a)*rr*.92,y+math.sin(a)*rr*.92,top+t*H-.25,a,w=.5*r/2,owner=roof_name)
-        if r>=2.5:   # only the great tower carries gargoyles, two on the sea-facing side
-            for a in (-math.pi/2-.55,-math.pi/2+.55):
-                gargoyle(x+math.cos(a)*r*1.0,y+math.sin(a)*r*1.0,h*.9,a,s=1.9)
+    # User requested plain roof slopes: no dormer body, glass, cap or small ball.
+    if r>=2.5:   # retain the great tower's sea-facing gargoyles
+        for a in (-math.pi/2-.55,-math.pi/2+.55):
+            gargoyle(x+math.cos(a)*r*1.0,y+math.sin(a)*r*1.0,h*.9,a,s=1.9)
 # keep: trim courses, plinth course, flying buttresses with pinnacles
 obox(0,2,11.1,14.3,10.3,.3,DSTONE);obox(0,2,1.0,14.5,10.5,.5,DSTONE);obox(0,2,.2,15.2,11.2,1.6,STONE)
 obox(0,2,17.6,14.4,10.4,.35,DSTONE)
@@ -1078,6 +1063,7 @@ sc["castle_source_sha256"]=hashlib.sha256(Path(__file__).read_bytes()).hexdigest
 sc["castle_source_revision"]="audit-fixes-20261108-sculpture"
 sc["castle_gargoyle_revision"]=2
 sc["castle_roof_height_scale"]=ROOF_HEIGHT_SCALE
+sc["castle_roof_dormers"]=False
 bpy.ops.wm.save_as_mainfile(filepath=OUT+"castle.blend",compress=True)
 if OPTIONS.mode=='render':
     try:

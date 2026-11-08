@@ -23,6 +23,7 @@ for name,o in roofs.items():
   assert min(signed)<0<max(signed),(q.name,signed)
   assert lo<min(v.z for v in pp)<hi,q.name
   dormers.append({'body':q.name,'owner':name,'min_radial_clearance':min(signed),'max_radial_clearance':max(signed)})
-assert len(dormers)==20,len(dormers)
+assert len(dormers)==0,len(dormers)
+assert not any(o.get("castle_asset")=="roof_dormer" for o in s.objects), "roof dormer parts remain"
 report={'blender':bpy.app.version_string,'roof_count':len(rows),'dormer_count':len(dormers),'roofs':rows,'dormers':dormers}
 args=sys.argv[sys.argv.index('--')+1:];Path(args[0]).write_text(json.dumps(report,indent=2));print('PASS roofs/dormers',len(rows),len(dormers))
