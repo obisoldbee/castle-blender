@@ -1,0 +1,17 @@
+{
+  "rings": [
+    {
+      "upper_ring": 74,
+      "lower_ring": 491
+    },
+    {
+      "upper_ring": 74,
+      "lower_ring": 483
+    }
+  ],
+  "lower_nonmanifold_edges": 0,
+  "body_z_min": 0.31251394748687744,
+  "body_z_max": 3.1003921031951904,
+  "method": "stitched lower-calves at .695-.715; no truncation or overlapping caps",
+  "source": "integrated05 upper + seam18 lower, independent candidate"
+}
