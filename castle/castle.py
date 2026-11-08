@@ -220,6 +220,27 @@ def rock_mat(name,wscale=.5,wdist=4.5,bdir='Z',vscale=.45):
     bp=N(nt,"ShaderNodeBump",Strength=1.0,Distance=.4);L(nt,hgt,bp.inputs["Height"]);L(nt,bp.outputs["Normal"],b.inputs["Normal"])
     return m
 
+def sculpture_stone(name, dark=False):
+    """Fine-grained carved stone, deliberately without masonry/brick nodes."""
+    material=bpy.data.materials.new(name);material.use_nodes=True
+    nt=material.node_tree;shader=nt.nodes["Principled BSDF"]
+    shader.inputs["Roughness"].default_value=.86
+    tex=nt.nodes.new("ShaderNodeTexNoise");tex.inputs["Scale"].default_value=55
+    tex.inputs["Detail"].default_value=3;tex.inputs["Roughness"].default_value=.65
+    geo=nt.nodes.new("ShaderNodeNewGeometry");nt.links.new(geo.outputs["Position"],tex.inputs["Vector"])
+    ramp=nt.nodes.new("ShaderNodeValToRGB")
+    colors=((.045,.041,.034,1),(.095,.087,.073,1)) if dark else ((.20,.185,.16,1),(.27,.25,.215,1))
+    for element,color in zip(ramp.color_ramp.elements,colors): element.color=color
+    nt.links.new(tex.outputs["Fac"],ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"],shader.inputs["Base Color"])
+    bump=nt.nodes.new("ShaderNodeBump");bump.inputs["Strength"].default_value=.15
+    bump.inputs["Distance"].default_value=.008
+    nt.links.new(tex.outputs["Fac"],bump.inputs["Height"])
+    nt.links.new(bump.outputs["Normal"],shader.inputs["Normal"])
+    return material
+
+SCULPTURE_STONE=sculpture_stone("gargoyle_carved_stone")
+SCULPTURE_RECESS=sculpture_stone("gargoyle_recess_stone",dark=True)
 STONE=stone_mat("stone",(.20,.185,.16),(.27,.25,.215),(.33,.31,.28))
 DSTONE=stone_mat("dstone",(.15,.14,.125),(.2,.19,.17),(.27,.26,.24),scale=1.6)
 ROOF=slate_mat("roof")
@@ -557,23 +578,39 @@ for i in range(5):
 def obox(x,y,z,sx,sy,sz,m=STONE,rx=0,ry=0,rz=0):
     bpy.ops.mesh.primitive_cube_add(location=(x,y,z),rotation=(rx,ry,rz));o=bpy.context.object;o.scale=(sx/2,sy/2,sz/2);return link(o,m)
 def gargoyle(x,y,z,a,s=1.0):
+    before=set(bpy.data.objects)
     ca,sa=math.cos(a),math.sin(a)
     P=lambda d,h=0,lat=0:(x+ca*d*s-sa*lat*s,y+sa*d*s+ca*lat*s,z+h*s)
     # bonding corbel: tail block runs back into the masonry so the beast is carried by the wall
     corbel=obox(*P(.1,-.12),.95*s,.38*s,.32*s,DSTONE,0,0,a)
     corbel.name="garg_corbel";corbel["castle_asset"]="gargoyle_corbel"
-    bpy.ops.mesh.primitive_cone_add(vertices=10,radius1=.2*s,radius2=.12*s,depth=.8*s,location=P(.45,.05),rotation=(0,math.pi/2-.25,a));o=bpy.context.object;o.scale.x=1.25;link(o,STONE)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=.15*s,location=P(.95,.22),segments=12,ring_count=8);o=bpy.context.object;o.scale=(1.35,1,1.05);o.rotation_euler=(0,0,a);link(o,STONE)
-    bpy.ops.mesh.primitive_cone_add(vertices=8,radius1=.075*s,radius2=.03*s,depth=.32*s,end_fill_type='NOTHING',location=P(1.15,.17),rotation=(0,math.pi/2+.2,a));link(bpy.context.object,STONE)
+    bpy.ops.mesh.primitive_cone_add(vertices=10,radius1=.2*s,radius2=.12*s,depth=.8*s,location=P(.45,.05),rotation=(0,math.pi/2-.25,a));o=bpy.context.object;o.scale.x=1.25;link(o,SCULPTURE_STONE)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=.15*s,location=P(.95,.22),segments=12,ring_count=8);o=bpy.context.object;o.scale=(1.35,1,1.05);o.rotation_euler=(0,0,a);link(o,SCULPTURE_STONE)
+    bpy.ops.mesh.primitive_cone_add(vertices=8,radius1=.075*s,radius2=.03*s,depth=.32*s,end_fill_type='NOTHING',location=P(1.15,.17),rotation=(0,math.pi/2+.2,a));link(bpy.context.object,SCULPTURE_STONE)
     mouth=bpy.context.object;mouth["no_global_bevel"]=True
     mouth.modifiers.new("stone_lip",'SOLIDIFY').thickness=.012*s  # Open lip, not a simulated drainage system.
     for lat in (-1,1):
-        bpy.ops.mesh.primitive_cone_add(vertices=6,radius1=.035*s,depth=.22*s,location=P(.9,.4,lat*.08),rotation=(0,-.5,a));link(bpy.context.object,STONE)  # horns
+        bpy.ops.mesh.primitive_cone_add(vertices=6,radius1=.035*s,depth=.22*s,location=P(.9,.4,lat*.08),rotation=(0,-.5,a));link(bpy.context.object,SCULPTURE_STONE)  # horns
         me=bpy.data.meshes.new("wing");bm=bmesh.new()
         v=[bm.verts.new(p) for p in [P(.35,.15,lat*.12),P(.75,.25,lat*.14),P(.25,.55,lat*.42),P(.1,.35,lat*.3)]]
         bm.faces.new(v);bm.to_mesh(me);bm.free();wo=bpy.data.objects.new("wing",me);bpy.context.collection.objects.link(wo)
-        wo.modifiers.new("t",'SOLIDIFY').thickness=.04*s;link(wo,STONE)
-        bpy.ops.mesh.primitive_cylinder_add(vertices=6,radius=.04*s,depth=.25*s,location=P(.7,-.12,lat*.1));link(bpy.context.object,STONE)  # forelegs
+        wo.modifiers.new("t",'SOLIDIFY').thickness=.04*s;link(wo,SCULPTURE_STONE)
+        bpy.ops.mesh.primitive_cylinder_add(vertices=6,radius=.04*s,depth=.25*s,location=P(.7,-.12,lat*.1));link(bpy.context.object,SCULPTURE_STONE)  # forelegs
+    # Small brows and inset dark-stone eye surfaces clarify the profile;
+    # these are stylized orbital relief, not boolean-cut sockets or glass eyes.
+    for side in (-1,1):
+        for h,lat,radius,scale,material in (
+                (.285,side*.125,.05,(1.6,.7,.5),SCULPTURE_STONE),
+                (.245,side*.146,.025,(1.3,.35,.7),SCULPTURE_RECESS)):
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=8,radius=radius*s,location=P(.97,h,lat))
+            eye=bpy.context.object;eye.scale=scale;eye.rotation_euler.z=a
+            eye["no_global_bevel"]=True;link(eye,material)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=8,radius=.09*s,location=P(1.07,.075))
+    jaw=bpy.context.object;jaw.scale=(1.6,.85,.45);jaw.rotation_euler.z=a
+    jaw["no_global_bevel"]=True;link(jaw,SCULPTURE_STONE)
+    for part in set(bpy.data.objects)-before:
+        if not part.get("castle_asset"): part["castle_asset"]="gargoyle_sculpture"
+
 def dormer(cx,cy,zb,a,w=.55):
     ca,sa=math.cos(a),math.sin(a)
     obox(cx,cy,zb+w*.55,w*.9,w,w*1.1,STONE,0,0,a+math.pi/2)
@@ -1008,11 +1045,27 @@ def cam(name,loc,target,lens):
     bpy.ops.object.camera_add(location=loc);c=bpy.context.object;c.name=name;c.data.lens=lens;c.data.clip_end=5000
     c.rotation_euler=(Vector(target)-Vector(loc)).to_track_quat('-Z','Y').to_euler();return c
 cams=[cam("Cam_Wide",(25,-125,9),(0,0,18),40),cam("Cam_Low",(-6,-36,4.5),(2,0,26),20),cam("Cam_Moon",(78,-70,34),(-4,10,9),30),cam("Cam_Gate",(6.5,-31,10),(2,-15,8.5),32)]
+# Business collections organize handoff without renaming legacy geometry.
+collections={name:bpy.data.collections.new(name) for name in
+             ("Architecture","Gargoyles","Environment","Cameras","Lighting","Construction_Cutters")}
+for collection in collections.values(): sc.collection.children.link(collection)
+architecture=set(castle);cutters=set(CUTTERS)
+for obj in list(sc.objects):
+    if obj.type=='CAMERA': group='Cameras'
+    elif obj.type=='LIGHT': group='Lighting'
+    elif obj in cutters: group='Construction_Cutters'
+    elif obj.get('castle_asset','').startswith('gargoyle'): group='Gargoyles'
+    elif obj in architecture: group='Architecture'
+    else: group='Environment'
+    target=collections[group];target.objects.link(obj)
+    for old in list(obj.users_collection):
+        if old!=target: old.objects.unlink(obj)
+
 # Save a usable scene before optional still rendering, with portable output paths.
 sc.camera=cams[0]
 sc.render.filepath="//output/"+PFX+sc.camera.name+".png"
 sc["castle_source_sha256"]=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
-sc["castle_source_revision"]="audit-fixes-20261108"
+sc["castle_source_revision"]="audit-fixes-20261108-sculpture"
 sc["castle_gargoyle_revision"]=2
 bpy.ops.wm.save_as_mainfile(filepath=OUT+"castle.blend",compress=True)
 if OPTIONS.mode=='render':
