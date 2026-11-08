@@ -1,2 +1,38 @@
-# castle-blender
-Procedural Blender castle scenes, 24-hour animation setup, and gargoyle studies.
+# 城堡 Blender 项目
+
+程序化城堡主场景、24 小时昼夜动画设置和滴水兽特写。项目不含小天使。
+
+## 入口
+
+- `castle/castle.blend`：主场景。
+- `castle/castle.py`：程序化建模及静帧渲染脚本。
+- `castle/anim/castle_24h.blend`：已有昼夜动画场景，720 帧、24 fps。
+- `castle/anim.py`：基于已打开主场景建立动画并渲染。
+- `castle/gargoyle_closeups/`：滴水兽独立补丁、特写脚本及参考渲染。
+- `castle/anim/review3/contact_sheet.jpg`：旧动画联系表。
+
+## 打开与使用
+
+建议 Blender 4.2 LTS；本次在 Blender 4.3.2 使用禁用自动执行模式，成功只读加载两份场景。无外部贴图、字体、链接库或内嵌文本脚本。
+
+```sh
+blender --disable-autoexec castle/castle.blend
+```
+
+先直接打开 `.blend` 检查场景。Python 脚本会修改场景、保存文件并开始渲染，不是只读查看工具。`castle.py` 还会清空当前场景；请在独立 Blender 进程运行，不要在未保存的工作中执行。脚本输出已改为相对脚本位置的 `castle/output/`，不会覆盖本仓库原始 `.blend`。手工渲染已存动画前也应设置自己的输出目录；场景文件保留交接时输出路径。
+
+源码只依赖 Blender 自带 `bpy`、`bmesh`、`mathutils` 和 Python 标准库。未安装额外依赖，未执行完整渲染。
+
+## 当前限制
+
+滴水兽补丁尚未合入 24h 动画，特写图不能证明动画已修复。主建模脚本和已存主场景也未逐项比对同步。外围围墙/四角塔搬迁、排水朝向与背槽仍待做。旧动画还有黄昏偏短、白天蝙蝠、循环接缝亮度、夜景偏暗青、局部亮石抢眼等已知问题。
+
+Ocean 修改器使用未烘焙状态，旧临时缓存路径不是必需外部资产；需要烘焙时重新设置路径。
+
+## 来源与检查
+
+由项目所有者提供的独立城堡工程包导入。原包及 11 个清单文件的 SHA256 已校验。只公开城堡相关工程、脚本和参考图；原始交接记录、私人工作区记录、缓存、备份及其他项目不入库。模型和材质为程序化内容，未发现第三方外部资产；未另行授予开源许可证。
+
+`MANIFEST.sha256` 记录本次发布文件摘要；两份 `.blend` 采用 Blender 支持的无损 gzip 压缩，解压后字节与原文件完全一致。
+
+本次只做目录治理、路径便携化与静态/加载检查，不代表视觉修复或完整渲染验收通过。

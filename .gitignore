@@ -1,0 +1,7 @@
+castle/output/
+*.blend1
+*.blend2
+__pycache__/
+*.pyc
+.env*
+.DS_Store
