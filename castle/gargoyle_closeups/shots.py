@@ -55,9 +55,11 @@ try:
         cd.dof.use_dof=True;cd.dof.focus_distance=off.length;cd.dof.aperture_fstop=5.6
         c.location=t+off;c.rotation_euler=(t-c.location).to_track_quat('-Z','Y').to_euler()
         if opt.mode!='render': continue
-        s.camera=c;s.frame_set(fr)
-        # Use the same baseline each time, not cumulative exposure increments.
-        s.view_settings.exposure=original[2]+(.6 if 'dusk' in n else 0)
+        s.camera=c
+        # Reset only the unanimated fallback, then evaluate the target frame.
+        # Animated day/night exposure must take precedence over the entry frame.
+        s.view_settings.exposure=original[2];s.frame_set(fr)
+        s.view_settings.exposure+=(.6 if 'dusk' in n else 0)
         s.render.resolution_x=1600;s.render.resolution_y=1000;s.render.resolution_percentage=opt.percentage
         s.cycles.samples=opt.samples;s.cycles.use_denoising=not opt.no_denoise;s.cycles.use_adaptive_sampling=True
         s.render.filepath=str(opt.output_dir/(n+'.png'))
